@@ -1,0 +1,30 @@
+from flask import Flask, request, jsonify
+import requests
+
+app = Flask(__name__)
+
+# Define the base URL of the target domain
+TARGET_DOMAIN_BASE_URL = "https://rocketbotroyale2.winterpixel.io"
+
+@app.route('/proxy/<path:path>', methods=['GET'])
+def proxy(path):
+    # Construct the full URL to the target domain endpoint
+    target_url = f"{TARGET_DOMAIN_BASE_URL}/{path}"
+
+    try:
+        # Make a request to the target domain
+        response = requests.get(target_url)
+
+        # Check if request was successful
+        if response.status_code == 200:
+            # Return response content
+            return response.content, 200
+        else:
+            # Return error message if request was not successful
+            return jsonify({"error": "Failed to fetch data from the target domain"}), response.status_code
+    except Exception as e:
+        # Return error message if an exception occurs
+        return jsonify({"error": f"An error occurred: {str(e)}"}), 500
+
+if __name__ == '__main__':
+    app.run(debug=True)
